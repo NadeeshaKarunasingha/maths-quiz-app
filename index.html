@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ගණිතය O/L Quiz</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      padding: 28px;
+      margin-top: 20px;
+    }
+    h1 {
+      font-size: 22px;
+      color: #1e3a8a;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .grade-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .grade-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .grade-card:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: translateY(-2px);
+    }
+    .grade-card .icon { font-size: 40px; margin-bottom: 8px; }
+    .grade-card .name { font-size: 18px; font-weight: 700; color: #1e3a8a; }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 0;
+      margin-bottom: 12px;
+    }
+    .back-btn:hover { text-decoration: underline; }
+    .term-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      margin: 16px 0 8px;
+      letter-spacing: 0.5px;
+    }
+    .topic-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .topic-item:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+    .topic-item .topic-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .topic-item .topic-count {
+      font-size: 12px;
+      color: #64748b;
+      background: #e2e8f0;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .progress {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #2563eb;
+      border-radius: 3px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+    .question {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+    .option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .option:hover { border-color: #93c5fd; background: #eff6ff; }
+    .option.correct { background: #dcfce7; border-color: #22c55e; color: #166534; font-weight: 600; }
+    .option.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+    .option:disabled { cursor: default; }
+    .feedback {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      min-height: 22px;
+    }
+    .next-btn {
+      display: none;
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .next-btn:hover { background: #1d4ed8; }
+
+    .result { text-align: center; }
+    .result .score { font-size: 48px; font-weight: 700; color: #2563eb; margin: 12px 0; }
+    .result .message { font-size: 16px; color: #475569; margin-bottom: 20px; }
+    .restart {
+      padding: 14px 28px;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 6px;
+    }
+    .restart:hover { background: #15803d; }
+    .secondary-btn {
+      padding: 14px 28px;
+      background: #fff;
+      color: #2563eb;
+      border: 2px solid #2563eb;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 6px;
+    }
+    .secondary-btn:hover { background: #eff6ff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div id="screen-grade" class="screen active">
+      <h1>📐 ගණිතය Quiz</h1>
+      <p class="subtitle">ශ්‍රේණිය තෝරන්න</p>
+      <div class="grade-grid">
+        <div class="grade-card" onclick="selectGrade(10)">
+          <div class="icon">🔟</div>
+          <div class="name">Grade 10</div>
+        </div>
+        <div class="grade-card" onclick="selectGrade(11)">
+          <div class="icon">1️⃣1️⃣</div>
+          <div class="name">Grade 11</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="screen-topic" class="screen">
+      <button class="back-btn" onclick="showScreen('screen-grade')">← ආපහු</button>
+      <h1 id="topicTitle">Topics</h1>
+      <p class="subtitle">Topic එකක් තෝරන්න</p>
+      <div id="topicList"></div>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+      <button class="back-btn" onclick="quitQuiz()">← ඉවත් වෙන්න</button>
+      <p class="progress" id="progress"></p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p class="question" id="question"></p>
+      <div id="options"></div>
+      <p class="feedback" id="feedback"></p>
+      <button class="next-btn" id="nextBtn">ඊළඟ ප්‍රශ්නය →</button>
+    </div>
+
+    <div id="screen-result" class="screen result">
+      <h1>🎉 අවසන්!</h1>
+      <p class="subtitle">ඔබේ ලකුණු</p>
+      <p class="score" id="scoreText"></p>
+      <p class="message" id="messageText"></p>
+      <button class="restart" onclick="restartQuiz()">නැවත උත්සාහ කරන්න</button>
+      <button class="secondary-btn" onclick="showScreen('screen-topic')">Topic තෝරන්න</button>
+    </div>
+
+  </div>
+
+  <script>
+    const syllabus = {
+      10: {
+        "Term 1": [
+          { id: "t1", name: "Perimeter", questions: [] },
+          { id: "t2", name: "Surface Area of Solids", questions: [] },
+          { id: "t3", name: "Logarithms I", questions: [] },
+          { id: "t4", name: "Factors", questions: [] },
+          { id: "t5", name: "Angles & Parallel Lines", questions: [] },
+          { id: "t6", name: "Frequency Distributions", questions: [] },
+          { id: "t7", name: "Fractions", questions: [] },
+          { id: "t8", name: "Percentages", questions: [] },
+          { id: "t9", name: "Congruence of Triangles", questions: [] }
+        ],
+        "Term 2": [
+          { id: "t10", name: "Linear & Simultaneous Equations", questions: [] },
+          { id: "t11", name: "Parallelograms", questions: [] },
+          { id: "t12", name: "Sets", questions: [] },
+          { id: "t13", name: "Ratio and Proportion", questions: [] },
+          { id: "t14", name: "Quadratic Functions and Graphs", questions: [] },
+          { id: "t15", name: "Area of Triangles", questions: [] },
+          { id: "t16", name: "Square Roots", questions: [] },
+          { id: "t17", name: "Logarithms II", questions: [] },
+          { id: "t18", name: "Inequalities", questions: [] }
+        ],
+        "Term 3": [
+          { id: "t19", name: "Gradient & Equation of Line", questions: [] },
+          { id: "t20", name: "Sectors of Circles", questions: [] },
+          { id: "t21", name: "Probability", questions: [] },
+          { id: "t22", name: "Geometric Theorems", questions: [] },
+          { id: "t23", name: "Multiplication of Binomials", questions: [] },
+          { id: "t24", name: "Volume of Prisms & Cylinders", questions: [] },
+          { id: "t25", name: "Geometric Constructions", questions: [] }
+        ]
+      },
+      11: {
+        "Term 1": [
+          { id: "t1", name: "Real-World Maths & Investments", questions: [] },
+          { id: "t2", name: "Pie Charts", questions: [] },
+          { id: "t3", name: "LCM of Algebraic Expressions", questions: [] },
+          { id: "t4", name: "Algebraic Fractions", questions: [] },
+          { id: "t5", name: "Quadratic Equations", questions: [] },
+          { id: "t6", name: "Chords of a Circle", questions: [] },
+          { id: "t7", name: "Trigonometric Ratios", questions: [] },
+          { id: "t8", name: "Formulae", questions: [] },
+          { id: "t9", name: "Statistics I", questions: [] }
+        ],
+        "Term 2": [
+          { id: "t10", name: "Cyclic Quadrilaterals", questions: [] },
+          { id: "t11", name: "Progressions", questions: [] },
+          { id: "t12", name: "Surface Area & Volume (Solids)", questions: [] },
+          { id: "t13", name: "Inequalities (Compound)", questions: [] },
+          { id: "t14", name: "Probability (Events)", questions: [] },
+          { id: "t15", name: "Angles of Elevation/Depression", questions: [] },
+          { id: "t16", name: "Graphs (Quadratic)", questions: [] },
+          { id: "t17", name: "Geometric Constructions", questions: [] }
+        ],
+        "Term 3": [
+          { id: "t18", name: "Statistics II", questions: [] },
+          { id: "t19", name: "Tangents to a Circle", questions: [] },
+          { id: "t20", name: "Sets (3 overlapping)", questions: [] },
+          { id: "t21", name: "Similarity of Triangles", questions: [] },
+          { id: "t22", name: "Matrices", questions: [] }
+        ]
+      }
+    };
+
+    const demoQuestions = {
+      10: {
+        "t1": [
+          { q: "අරය 7 cm වූ රවුමක පරිමිතිය (π = 22/7):", options: ["22 cm", "44 cm", "49 cm", "154 cm"], answer: 1 },
+          { q: "පැත්ත 5 cm වූ චතුරස්‍රයක පරිමිතිය:", options: ["10 cm", "15 cm", "20 cm", "25 cm"], answer: 2 },
+          { q: "අරය 14 cm වූ අර්ධ වෘත්තයක පරිමිතිය (π = 22/7):", options: ["44 cm", "72 cm", "88 cm", "100 cm"], answer: 1 }
+        ],
+        "t10": [
+          { q: "2x + 3 = 11 නම් x = ?", options: ["2", "4", "7", "8"], answer: 1 },
+          { q: "x + y = 10, x - y = 2 නම් x = ?", options: ["4", "6", "8", "10"], answer: 1 },
+          { q: "3x - 5 = 10 නම් x = ?", options: ["3", "5", "10", "15"], answer: 1 }
+        ],
+        "t5": [
+          { q: "ත්‍රිකෝණයක කෝණ 3හි එකතුව:", options: ["90°", "180°", "270°", "360°"], answer: 1 },
+          { q: "සරල රේඛාවක් මත ඇති කෝණ එකතුව:", options: ["90°", "180°", "270°", "360°"], answer: 1 },
+          { q: "අනුපූරක කෝණ දෙකක එකතුව:", options: ["90°", "180°", "270°", "360°"], answer: 1 }
+        ]
+      },
+      11: {
+        "t5": [
+          { q: "x² - 5x + 6 = 0 හි මූලයන්:", options: ["2, 3", "-2, -3", "1, 6", "-1, -6"], answer: 0 },
+          { q: "x² = 16 නම් x = ?", options: ["4", "-4", "±4", "8"], answer: 2 },
+          { q: "x² + 3x - 10 = 0 හි මූලයන්:", options: ["2, -5", "-2, 5", "1, -10", "-1, 10"], answer: 0 }
+        ],
+        "t22": [
+          { q: "[1 2; 3 4] හි අනුපිළිවෙල (order):", options: ["1×2", "2×1", "2×2", "4×4"], answer: 2 },
+          { q: "[1 2; 3 4] + [5 6; 7 8] = ?", options: ["[6 8; 10 12]", "[5 8; 21 32]", "[6 8; 10 12]", "[1 2; 3 4]"], answer: 0 },
+          { q: "[2 4; 6 8] × 2 = ?", options: ["[4 8; 12 16]", "[2 4; 6 8]", "[4 6; 8 10]", "[8 16; 24 32]"], answer: 0 }
+        ],
+        "t7": [
+          { q: "sin 30° = ?", options: ["0", "1/2", "√3/2", "1"], answer: 1 },
+          { q: "cos 60° = ?", options: ["0", "1/2", "√3/2", "1"], answer: 1 },
+          { q: "tan 45° = ?", options: ["0", "1/2", "1", "√3"], answer: 2 }
+        ]
+      }
+    };
+
+    for (const grade in demoQuestions) {
+      for (const term in syllabus[grade]) {
+        syllabus[grade][term].forEach(topic => {
+          if (demoQuestions[grade][topic.id]) {
+            topic.questions = demoQuestions[grade][topic.id];
+          }
+        });
+      }
+    }
+
+    let state = {
+      grade: null,
+      topic: null,
+      questions: [],
+      current: 0,
+      score: 0,
+      answered: false
+    };
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function selectGrade(grade) {
+      state.grade = grade;
+      document.getElementById('topicTitle').textContent = `Grade ${grade} - Topics`;
+      renderTopics();
+      showScreen('screen-topic');
+    }
+
+    function renderTopics() {
+      const list = document.getElementById('topicList');
+      list.innerHTML = '';
+      const gradeData = syllabus[state.grade];
+
+      for (const term in gradeData) {
+        const label = document.createElement('div');
+        label.className = 'term-label';
+        label.textContent = term;
+        list.appendChild(label);
+
+        gradeData[term].forEach(topic => {
+          const count = topic.questions.length;
+          const item = document.createElement('div');
+          item.className = 'topic-item';
+          item.innerHTML = `
+            <span class="topic-name">${topic.name}</span>
+            <span class="topic-count">${count} ප්‍රශ්න</span>
+          `;
+          item.onclick = () => startQuiz(topic);
+          list.appendChild(item);
+        });
+      }
+    }
+
+    function startQuiz(topic) {
+      if (topic.questions.length === 0) {
+        alert('මේ topic එකට තාම ප්‍රශ්න එකතු කරලා නැහැ.');
+        return;
+      }
+      state.topic = topic;
+      state.questions = topic.questions;
+      state.current = 0;
+      state.score = 0;
+      state.answered = false;
+      showScreen('screen-quiz');
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      state.answered = false;
+      const q = state.questions[state.current];
+      document.getElementById('progress').textContent =
+        `ප්‍රශ්නය ${state.current + 1} / ${state.questions.length}`;
+      document.getElementById('progressFill').style.width =
+        `${(state.current / state.questions.length) * 100}%`;
+      document.getElementById('question').textContent = q.q;
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('nextBtn').style.display = 'none';
+
+      const optionsEl = document.getElementById('options');
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.textContent = `${String.fromCharCode(65 + i)}. ${opt}`;
+        btn.onclick = () => checkAnswer(i);
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      if (state.answered) return;
+      state.answered = true;
+
+      const q = state.questions[state.current];
+      const buttons = document.querySelectorAll('#options .option');
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.answer) btn.classList.add('correct');
+        if (i === selected && i !== q.answer) btn.classList.add('wrong');
+      });
+
+      const fb = document.getElementById('feedback');
+      if (selected === q.answer) {
+        state.score++;
+        fb.textContent = '✅ නිවැරදියි!';
+        fb.style.color = '#16a34a';
+      } else {
+        fb.textContent = `❌ වැරදියි. නිවැරදි: ${q.options[q.answer]}`;
+        fb.style.color = '#dc2626';
+      }
+
+      document.getElementById('progressFill').style.width =
+        `${((state.current + 1) / state.questions.length) * 100}%`;
+
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.style.display = 'block';
+      nextBtn.textContent = (state.current + 1 === state.questions.length)
+        ? 'ප්‍රතිඵල බලන්න →'
+        : 'ඊළඟ ප්‍රශ්නය →';
+    }
+
+    document.getElementById('nextBtn').onclick = () => {
+      state.current++;
+      if (state.current < state.questions.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    };
+
+    function showResult() {
+      showScreen('screen-result');
+      document.getElementById('scoreText').textContent =
+        `${state.score} / ${state.questions.length}`;
+      const percent = (state.score / state.questions.length) * 100;
+      let msg = '';
+      if (percent === 100) msg = '🏆 නියමයි! සම්පූර්ණයි!';
+      else if (percent >= 75) msg = '🌟 ඉතා හොඳයි!';
+      else if (percent >= 50) msg = '👍 හොඳයි, තව ටිකක් පුහුණු වෙන්න.';
+      else msg = '💪 තව පුහුණුවක් අවශ්‍යයි.';
+      document.getElementById('messageText').textContent = msg;
+    }
+
+    function restartQuiz() {
+      state.current = 0;
+      state.score = 0;
+      state.answered = false;
+      showScreen('screen-quiz');
+      loadQuestion();
+    }
+
+    function quitQuiz() {
+      if (confirm('Quiz එකෙන් ඉවත් වෙන්නද?')) {
+        showScreen('screen-topic');
+      }
+    }
+  </script>
+</body>
+</html>
